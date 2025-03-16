@@ -17,7 +17,7 @@ orders_df["Order Date"] = pd.to_datetime(orders_df["Order Date"])
 
 # Streamlit UI
 st.set_page_config(page_title="Superstore Dashboard", layout="wide")
-st.title("📊 Superstore Business Performance Dashboard")
+st.title("Superstore Dashboard")
 
 # Sidebar Filters
 st.sidebar.header("Filter Options")
