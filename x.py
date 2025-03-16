@@ -37,8 +37,8 @@ with col2:
     total_profit = df_filtered["Profit"].sum()
     st.metric("Total Profit", f"${total_profit:,.2f}")
 with col3:
-    total_quantity = df_filtered["Quantity"].mean() * 100
-    st.metric("Quantity", f"{total_quantity:.2f}%")
+    return_rate = df_filtered["Returned"].mean() * 100
+    st.metric("Return Rate", f"{return_rate:.2f}%")
 
 # Dynamic KPI Chart
 df_kpi = df_filtered.groupby("Order Date").agg({selected_kpi: "sum"}).reset_index()
