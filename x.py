@@ -15,7 +15,12 @@ orders_df["Returned"] = orders_df["Order ID"].isin(returns_df["Order ID"])
 # Convert Order Date to datetime
 orders_df["Order Date"] = pd.to_datetime(orders_df["Order Date"])
 
-# Streamlit UI
+# Ensure selected KPI exists in the dataset
+valid_kpis = ["Sales", "Profit"]
+valid_charts = ["Line Chart", "Bar Chart", "Pie Chart", "Scatter Plot"]
+valid_x = orders_df.columns.tolist()
+valid_y = orders_df.columns.tolist()
+
 st.set_page_config(page_title="Superstore Dashboard", layout="wide")
 st.title("Superstore Dashboard")
 
@@ -23,7 +28,10 @@ st.title("Superstore Dashboard")
 st.sidebar.header("Filter Options")
 selected_region = st.sidebar.multiselect("Select Region", options=orders_df["Region"].unique(), default=orders_df["Region"].unique())
 selected_category = st.sidebar.multiselect("Select Category", options=orders_df["Category"].unique(), default=orders_df["Category"].unique())
-selected_kpi = st.sidebar.selectbox("Select KPI", ["Sales", "Profit"])
+selected_kpi = st.sidebar.selectbox("Select KPI", valid_kpis)
+selected_chart = st.sidebar.selectbox("Select Chart Type", valid_charts)
+selected_x = st.sidebar.selectbox("Select X-axis", valid_x)
+selected_y = st.sidebar.selectbox("Select Y-axis", valid_y)
 
 # Filtered Data
 df_filtered = orders_df[(orders_df["Region"].isin(selected_region)) & (orders_df["Category"].isin(selected_category))]
@@ -41,27 +49,17 @@ with col3:
     st.metric("Return Rate", f"{return_rate:.2f}%")
 
 # Dynamic KPI Chart
-df_kpi = df_filtered.groupby("Order Date").agg({selected_kpi: "sum"}).reset_index()
-fig_kpi_trend = px.line(df_kpi, x="Order Date", y=selected_kpi, title=f"{selected_kpi} Trend Over Time")
-st.plotly_chart(fig_kpi_trend, use_container_width=True)
-
-# Sales by Region
-fig_sales_region = px.bar(df_filtered.groupby("Region")["Sales"].sum().reset_index(), x="Region", y="Sales", title="Total Sales by Region", text_auto=True)
-st.plotly_chart(fig_sales_region, use_container_width=True)
-
-# Sales vs. Profit Scatter
-fig_scatter = px.scatter(df_filtered, x="Sales", y="Profit", color="Category", hover_data=["Sub-Category", "Customer Name"], title="Sales vs Profit")
-st.plotly_chart(fig_scatter, use_container_width=True)
-
-# Sales by Category
-fig_sales_category = px.pie(df_filtered, names="Category", values="Sales", title="Sales Distribution by Category")
-st.plotly_chart(fig_sales_category, use_container_width=True)
-
-# Profit Trends
-df_filtered.set_index("Order Date", inplace=True)
-df_time = df_filtered.resample("M").agg({"Profit": "sum"}).reset_index()
-fig_profit_trend = px.line(df_time, x="Order Date", y="Profit", title="Monthly Profit Trends")
-st.plotly_chart(fig_profit_trend, use_container_width=True)
+if selected_x in df_filtered.columns and selected_y in df_filtered.columns:
+    if selected_chart == "Line Chart":
+        fig_kpi = px.line(df_filtered, x=selected_x, y=selected_y, title=f"{selected_y} Trend Over {selected_x}")
+    elif selected_chart == "Bar Chart":
+        fig_kpi = px.bar(df_filtered, x=selected_x, y=selected_y, title=f"{selected_y} Over {selected_x}")
+    elif selected_chart == "Pie Chart":
+        fig_kpi = px.pie(df_filtered, names=selected_x, values=selected_y, title=f"{selected_y} Distribution by {selected_x}")
+    elif selected_chart == "Scatter Plot":
+        fig_kpi = px.scatter(df_filtered, x=selected_x, y=selected_y, title=f"{selected_y} Scatter Plot vs {selected_x}")
+    
+    st.plotly_chart(fig_kpi, use_container_width=True)
 
 st.write("### Insights:")
 st.markdown("- The sales distribution helps identify the highest-performing regions.")
