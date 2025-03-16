@@ -12,6 +12,9 @@ people_df = pd.read_excel(xls, sheet_name="People")
 # Merge return data
 orders_df["Returned"] = orders_df["Order ID"].isin(returns_df["Order ID"])
 
+# Convert Order Date to datetime
+orders_df["Order Date"] = pd.to_datetime(orders_df["Order Date"])
+
 # Streamlit UI
 st.set_page_config(page_title="Superstore Dashboard", layout="wide")
 st.title("📊 Superstore Business Performance Dashboard")
@@ -49,8 +52,7 @@ fig_sales_category = px.pie(df_filtered, names="Category", values="Sales", title
 st.plotly_chart(fig_sales_category, use_container_width=True)
 
 # Profit Trends
-df_filtered["Order Date"] = pd.to_datetime(df_filtered["Order Date"])
-df_time = df_filtered.groupby(pd.Grouper(key="Order Date", freq="M")).sum().reset_index()
+df_time = df_filtered.resample("M", on="Order Date").sum().reset_index()
 fig_profit_trend = px.line(df_time, x="Order Date", y="Profit", title="Monthly Profit Trends")
 st.plotly_chart(fig_profit_trend, use_container_width=True)
 
