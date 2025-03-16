@@ -16,19 +16,35 @@ orders_df["Returned"] = orders_df["Order ID"].isin(returns_df["Order ID"])
 orders_df["Order Date"] = pd.to_datetime(orders_df["Order Date"])
 
 # Ensure selected KPI exists in the dataset
-valid_kpis = ["Sales", "Profit"]
+#valid_kpis = ["Sales", "Profit"]
 valid_charts = ["Line Chart", "Bar Chart", "Pie Chart", "Scatter Plot"]
 valid_x = orders_df.columns.tolist()
 valid_y = orders_df.columns.tolist()
 
 st.set_page_config(page_title="Superstore Dashboard", layout="wide")
+# Apply custom dark theme style
+st.markdown(
+    """
+    <style>
+        body {
+            background-color: black;
+            color: white;
+        }
+        .css-1d391kg, .css-1v3fvcr, .css-18e3th9 {
+            background-color: black !important;
+            color: white !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 st.title("Superstore Dashboard")
 
 # Sidebar Filters
 st.sidebar.header("Filter Options")
 selected_region = st.sidebar.multiselect("Select Region", options=orders_df["Region"].unique(), default=orders_df["Region"].unique())
 selected_category = st.sidebar.multiselect("Select Category", options=orders_df["Category"].unique(), default=orders_df["Category"].unique())
-selected_kpi = st.sidebar.selectbox("Select KPI", valid_kpis)
+#selected_kpi = st.sidebar.selectbox("Select KPI", valid_kpis)
 selected_chart = st.sidebar.selectbox("Select Chart Type", valid_charts)
 selected_x = st.sidebar.selectbox("Select X-axis", valid_x)
 selected_y = st.sidebar.selectbox("Select Y-axis", valid_y)
@@ -61,7 +77,8 @@ if selected_x in df_filtered.columns and selected_y in df_filtered.columns:
     
     st.plotly_chart(fig_kpi, use_container_width=True)
 
-st.write("### Insights:")
+"""st.write("### Insights:")
 st.markdown("- The sales distribution helps identify the highest-performing regions.")
 st.markdown("- The return rate metric provides insights into potential product issues.")
 st.markdown("- The scatter plot highlights high-profit vs low-profit transactions.")
+"""
