@@ -23,6 +23,7 @@ st.title("📊 Superstore Business Performance Dashboard")
 st.sidebar.header("Filter Options")
 selected_region = st.sidebar.multiselect("Select Region", options=orders_df["Region"].unique(), default=orders_df["Region"].unique())
 selected_category = st.sidebar.multiselect("Select Category", options=orders_df["Category"].unique(), default=orders_df["Category"].unique())
+selected_kpi = st.sidebar.selectbox("Select KPI", ["Sales", "Profit", "Return Rate"])
 
 # Filtered Data
 df_filtered = orders_df[(orders_df["Region"].isin(selected_region)) & (orders_df["Category"].isin(selected_category))]
@@ -39,6 +40,11 @@ with col3:
     return_rate = df_filtered["Returned"].mean() * 100
     st.metric("Return Rate", f"{return_rate:.2f}%")
 
+# Dynamic KPI Chart
+df_kpi = df_filtered.groupby("Order Date").agg({selected_kpi: "sum"}).reset_index()
+fig_kpi_trend = px.line(df_kpi, x="Order Date", y=selected_kpi, title=f"{selected_kpi} Trend Over Time")
+st.plotly_chart(fig_kpi_trend, use_container_width=True)
+
 # Sales by Region
 fig_sales_region = px.bar(df_filtered.groupby("Region")["Sales"].sum().reset_index(), x="Region", y="Sales", title="Total Sales by Region", text_auto=True)
 st.plotly_chart(fig_sales_region, use_container_width=True)
@@ -52,7 +58,6 @@ fig_sales_category = px.pie(df_filtered, names="Category", values="Sales", title
 st.plotly_chart(fig_sales_category, use_container_width=True)
 
 # Profit Trends
-df_filtered["Order Date"] = pd.to_datetime(df_filtered["Order Date"])
 df_filtered.set_index("Order Date", inplace=True)
 df_time = df_filtered.resample("M").agg({"Profit": "sum"}).reset_index()
 fig_profit_trend = px.line(df_time, x="Order Date", y="Profit", title="Monthly Profit Trends")
