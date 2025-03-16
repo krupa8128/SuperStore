@@ -52,7 +52,9 @@ fig_sales_category = px.pie(df_filtered, names="Category", values="Sales", title
 st.plotly_chart(fig_sales_category, use_container_width=True)
 
 # Profit Trends
-df_time = df_filtered.resample("M", on="Order Date").sum().reset_index()
+df_filtered["Order Date"] = pd.to_datetime(df_filtered["Order Date"])
+df_filtered.set_index("Order Date", inplace=True)
+df_time = df_filtered.resample("M").agg({"Profit": "sum"}).reset_index()
 fig_profit_trend = px.line(df_time, x="Order Date", y="Profit", title="Monthly Profit Trends")
 st.plotly_chart(fig_profit_trend, use_container_width=True)
 
