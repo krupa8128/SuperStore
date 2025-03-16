@@ -23,7 +23,7 @@ st.title("📊 Superstore Business Performance Dashboard")
 st.sidebar.header("Filter Options")
 selected_region = st.sidebar.multiselect("Select Region", options=orders_df["Region"].unique(), default=orders_df["Region"].unique())
 selected_category = st.sidebar.multiselect("Select Category", options=orders_df["Category"].unique(), default=orders_df["Category"].unique())
-selected_kpi = st.sidebar.selectbox("Select KPI", ["Sales", "Profit", "Return Rate"])
+selected_kpi = st.sidebar.selectbox("Select KPI", ["Sales", "Profit"])
 
 # Filtered Data
 df_filtered = orders_df[(orders_df["Region"].isin(selected_region)) & (orders_df["Category"].isin(selected_category))]
